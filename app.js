@@ -50,7 +50,8 @@ const FALLBACK_VERSES = [
   'וְאֶת־אֲחִיכֶ֤ם הַקָּטֹן֙ תָּבִ֣יאוּ אֵלַ֔י וְיֵאָמְנ֥וּ דִבְרֵיכֶ֖ם וְלֹ֣א תָמ֑וּתוּ וַיַּעֲשׂוּ־כֵֽן׃',
   'וַיֹּאמְר֞וּ אִ֣ישׁ אֶל־אָחִ֗יו אֲבָל֮ אֲשֵׁמִ֣ים ׀ אֲנַ֘חְנוּ֮ עַל־אָחִ֒ינוּ֒ אֲשֶׁ֨ר רָאִ֜ינוּ צָרַ֥ת נַפְשׁ֛וֹ בְּהִתְחַֽנְנ֥וֹ אֵלֵ֖ינוּ וְלֹ֣א שָׁמָ֑עְנוּ עַל־כֵּן֙ בָּ֣אָה אֵלֵ֔ינוּ הַצָּרָ֖ה הַזֹּֽאת׃',
   'וַיַּ֩עַן֩ רְאוּבֵ֨ן אֹתָ֜ם לֵאמֹ֗ר הֲלוֹא֩ אָמַ֨רְתִּי אֲלֵיכֶ֧ם ׀ לֵאמֹ֛ר אַל־תֶּחֶטְא֥וּ בַיֶּ֖לֶד וְלֹ֣א שְׁמַעְתֶּ֑ם וְגַם־דָּמ֖וֹ הִנֵּ֥ה נִדְרָֽשׁ׃',
-  'וְהֵם֙ לֹ֣א יָֽדְע֔וּ כִּ֥י שֹׁמֵ֖עַ יוֹסֵ֑ף כִּ֥י הַמֵּלִ֖יץ בֵּינֹתָֽם׃'
+  'וְהֵם֙ לֹ֣א יָֽדְע֔וּ כִּ֥י שֹׁמֵ֖עַ יוֹסֵ֑ף כִּ֥י הַמֵּלִ֖יץ בֵּינֹתָֽם׃',
+  'וַיִּסֹּ֥ב מֵֽעֲלֵיהֶ֖ם וַיֵּ֑בְךְּ וַיָּ֤שׇׁב אֲלֵהֶם֙ וַיְדַבֵּ֣ר אֲלֵהֶ֔ם וַיִּקַּ֤ח מֵֽאִתָּם֙ אֶת־שִׁמְע֔וֹן וַיֶּאֱסֹ֥ר אֹת֖וֹ לְעֵינֵיהֶֽם׃'
 ];
 
 const audioByVerse = new Map();
@@ -474,10 +475,10 @@ function renderVerses(texts) {
 
 async function loadPointedText() {
   try {
-    const response = await fetch(`https://www.sefaria.org/api/texts/Genesis.${CHAPTER_NUMBER}.${FIRST_VERSE}-23?context=0`);
+    const response = await fetch(`https://www.sefaria.org/api/texts/Genesis.${CHAPTER_NUMBER}.${FIRST_VERSE}-24?context=0`);
     if (!response.ok) throw new Error('Text request failed');
     const data = await response.json();
-    if (!Array.isArray(data.he) || data.he.length !== 16) throw new Error('Unexpected passage');
+    if (!Array.isArray(data.he) || data.he.length !== FALLBACK_VERSES.length) throw new Error('Unexpected passage');
     sourceVerses = data.he.map(stripHtml);
     updateDisplay();
   } catch (error) {
