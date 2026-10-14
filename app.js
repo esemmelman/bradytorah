@@ -441,31 +441,6 @@ function renderVerses(texts) {
         words.append(space);
       }
 
-      if (!scriptMode && highlight && wordIndex === highlight.end) {
-        const controls = document.createElement('span');
-        controls.className = 'group-audio-controls';
-
-        const recordButton = document.createElement('button');
-        recordButton.type = 'button';
-        recordButton.className = 'group-audio-button record-group';
-        recordButton.dataset.groupId = highlight.id;
-        recordButton.textContent = '●';
-        recordButton.setAttribute('aria-label', `${recordings.has(highlight.id) ? 'Re-record' : 'Record'} highlighted group ${highlight.id}`);
-        recordButton.title = recordings.has(highlight.id) ? 'Re-record this group' : 'Record this group';
-        controls.append(recordButton);
-
-        if (recordings.has(highlight.id)) {
-          const playButton = document.createElement('button');
-          playButton.type = 'button';
-          playButton.className = 'group-audio-button play-group';
-          playButton.dataset.groupId = highlight.id;
-          playButton.textContent = '▶';
-          playButton.setAttribute('aria-label', `Play recording for highlighted group ${highlight.id}`);
-          playButton.title = 'Play saved recording';
-          controls.append(playButton);
-        }
-        words.append(controls);
-      }
     });
 
     row.append(button, words);
@@ -697,79 +672,7 @@ passage.addEventListener('mouseout', event => {
   stopHoveredGroup();
 });
 
-passage.addEventListener('mouseup', async () => {
-  if (scriptMode) return;
-  if (!highlightsReady) {
-    status.textContent = 'Please wait for saved highlights to finish loading.';
-    return;
-  }
-  const selection = window.getSelection();
-  if (!selection || selection.isCollapsed || !selection.rangeCount) return;
-
-  const range = selection.getRangeAt(0);
-  const selectedWords = [...passage.querySelectorAll('.verse-line .word')].filter(word => {
-    try {
-      return range.intersectsNode(word);
-    } catch (error) {
-      return false;
-    }
-  });
-  if (!selectedWords.length) return;
-
-  const line = selectedWords[0].closest('.verse-line');
-  if (!selectedWords.every(word => word.closest('.verse-line') === line)) {
-    selection.removeAllRanges();
-    status.textContent = 'Highlight one verse at a time.';
-    return;
-  }
-
-  const verse = Number(line.dataset.verse);
-  const indices = selectedWords.map(word => Number(word.dataset.word));
-  const start = Math.min(...indices);
-  const end = Math.max(...indices);
-  const overlapping = highlights.filter(item => item.verse === verse && item.start <= end && item.end >= start);
-
-  if (overlapping.length) {
-    try {
-      const ids = overlapping.map(item => item.id).filter(Boolean).join(',');
-      const response = await fetch(`${SUPABASE_URL}/rest/v1/${HIGHLIGHT_TABLE}?id=in.(${ids})`, {
-        method: 'DELETE',
-        headers: supabaseHeaders()
-      });
-      if (!response.ok) throw new Error('Delete failed');
-      highlights = highlights.filter(item => !overlapping.includes(item));
-      selection.removeAllRanges();
-      updateDisplay();
-      status.textContent = `Cleared highlighting in verse ${verse}.`;
-    } catch (error) {
-      status.textContent = 'The highlight could not be cleared. Please try again.';
-    }
-    return;
-  }
-
-  const nextColor = highlights.length ? (highlights.at(-1).color % 2) + 1 : 1;
-  try {
-    const response = await fetch(`${SUPABASE_URL}/rest/v1/${HIGHLIGHT_TABLE}`, {
-      method: 'POST',
-      headers: supabaseHeaders({ Prefer: 'return=representation' }),
-      body: JSON.stringify({
-        passage_key: PASSAGE_KEY,
-        verse: storedVerseNumber(verse),
-        start_word: start,
-        end_word: end,
-        color: nextColor
-      })
-    });
-    if (!response.ok) throw new Error('Save failed');
-    const [saved] = await response.json();
-    highlights.push({ id: saved.id, verse, start, end, color: nextColor });
-    selection.removeAllRanges();
-    updateDisplay();
-    status.textContent = `Highlighted and saved a word group in verse ${verse}.`;
-  } catch (error) {
-    status.textContent = 'The highlight could not be saved. Please try again.';
-  }
-});
+// Saved phrases are read-only: selecting text must never change highlights.
 
 tropeToggle.addEventListener('click', () => {
   showTrope = !showTrope;
