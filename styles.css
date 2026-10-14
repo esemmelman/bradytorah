@@ -234,6 +234,11 @@ h1 { margin: 0 0 18px; font-size: clamp(1.35rem, 3vw, 2rem); font-weight: 400; }
   vertical-align: middle;
 }
 
+.verse-line[data-verse="19"] .group-audio-controls,
+.verse-line[data-verse="20"] .group-audio-controls {
+  display: inline-flex;
+}
+
 .group-audio-button {
   display: inline-grid;
   width: 2em;
